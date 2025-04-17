@@ -5,6 +5,6 @@ account: linusblomqvist
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13397211
-bundleId: 10134853
+bundleId: 10134907
 url: https://linusblomqvist.shinyapps.io/sb_cbc_area_map/
 version: 1
