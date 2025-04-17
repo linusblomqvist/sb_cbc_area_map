@@ -1,6 +1,6 @@
 # Load shiny package
 library(shiny)
-setwd("/Users/linusblomqvist/Library/CloudStorage/Dropbox/Birding/CBC/sb_cbc_area_map")
+setwd("~/Documents/sb_cbc_area_map")
 
 
 # Run app

@@ -1,0 +1,10 @@
+name: sb_cbc_area_map
+title:
+username: linusblomqvist
+account: linusblomqvist
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13397211
+bundleId:
+url: https://linusblomqvist.shinyapps.io/sb_cbc_area_map/
+version: 1
