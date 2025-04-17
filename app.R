@@ -161,7 +161,7 @@ server <- function(input, output, session) {
       
       dec_jan_url <- paste0(
         base_url, "&", species_query,
-        "&photosOnly=0&taxaLevel=full&rarity=&date=Dec-Jan&loc=&hotspotsOnly=0&latlon=",
+        "&photosOnly=0&taxaLevel=full&rarity=&date=2024-Dec%20-%202025-Jan&loc=&hotspotsOnly=0&latlon=",
         coords,
         "&birder=&source=checklists&groupMode=checklists&listby=taxon"
       )
