@@ -150,7 +150,7 @@ server <- function(input, output, session) {
       coords <- selected_polygon$coords_formatted
       species_query <- species_groups[["dec_jan_special"]]
       
-      base_url <- "https://s3.us-west-1.amazonaws.com/membot.com/BirdViewSBC.html?v=2"
+      base_url <- "https://s3.us-west-1.amazonaws.com/membot.com/BirdView.html?v=2"
       
       recent_url <- paste0(
         base_url, "&", species_query,
