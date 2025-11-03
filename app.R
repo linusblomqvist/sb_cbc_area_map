@@ -65,6 +65,35 @@ server <- function(input, output, session) {
     }
   })
   
+  # Render the map
+  output$map <- renderLeaflet({
+    leaflet(sf_data) %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = "Satellite View") %>%
+      addTiles(group = "Street View") %>%
+      addPolygons(
+        data = sf_data,
+        color = "blue",
+        fillColor = "lightblue",
+        fillOpacity = 0.5,
+        weight = 1,
+        label = ~Name,
+        popup = ~Name,
+        layerId = ~Name,
+        highlight = highlightOptions(weight = 3, color = "red", bringToFront = TRUE)
+      ) %>%
+      addLayersControl(
+        baseGroups = c("Satellite View", "Street View"),
+        options = layersControlOptions(collapsed = FALSE)
+      )
+  })
+  
+  # NEW: Click on a polygon to update the selectInput (enables zoom + sidebar updates)
+  observeEvent(input$map_shape_click, {
+    click <- input$map_shape_click
+    req(click$id)
+    updateSelectInput(session, "polygon_select", selected = as.character(click$id))
+  })
+  
   # Update based on polygon selection
   observeEvent(input$polygon_select, {
     req(input$polygon_select)
@@ -103,28 +132,6 @@ server <- function(input, output, session) {
           )
       }
     }
-  })
-  
-  # Render the map
-  output$map <- renderLeaflet({
-    leaflet(sf_data) %>%
-      addProviderTiles(providers$Esri.WorldImagery, group = "Satellite View") %>%
-      addTiles(group = "Street View") %>%
-      addPolygons(
-        data = sf_data,
-        color = "blue",
-        fillColor = "lightblue",
-        fillOpacity = 0.5,
-        weight = 1,
-        label = ~Name,
-        popup = ~Name,
-        layerId = ~Name,
-        highlight = highlightOptions(weight = 3, color = "red", bringToFront = TRUE)
-      ) %>%
-      addLayersControl(
-        baseGroups = c("Satellite View", "Street View"),
-        options = layersControlOptions(collapsed = FALSE)
-      )
   })
   
   output$description_text <- renderUI({
