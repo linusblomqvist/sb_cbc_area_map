@@ -87,7 +87,7 @@ server <- function(input, output, session) {
       )
   })
   
-  # NEW: Click on a polygon to update the selectInput (enables zoom + sidebar updates)
+  # Click on a polygon to update the selectInput
   observeEvent(input$map_shape_click, {
     click <- input$map_shape_click
     req(click$id)
@@ -149,39 +149,98 @@ server <- function(input, output, session) {
     }
   })
   
+  # --- BirdView v5 URLs using coords_formatted as latlon ---
   output$recent_observations <- renderUI({
     req(input$polygon_select)
-    selected_polygon <- sf_data %>% filter(Name == input$polygon_select)
+    selected_polygon <- sf_data %>% dplyr::filter(Name == input$polygon_select)
     
-    if (nrow(selected_polygon) > 0) {
-      coords <- selected_polygon$coords_formatted
-      species_query <- species_groups[["dec_jan_special"]]
-      
-      base_url <- "https://s3.us-west-1.amazonaws.com/membot.com/BirdView.html?v=2"
-      
-      recent_url <- paste0(
-        base_url, "&", species_query,
-        "&photosOnly=0&taxaLevel=full&rarity=&date=2024-Dec%20-%202025-Jan&loc=&hotspotsOnly=0&latlon=",
-        coords,
-        "&birder=&source=checklists&groupMode=checklists&listby=taxon"
-      )
-      
-      dec_jan_url <- paste0(
-        base_url, "&", species_query,
-        "&photosOnly=0&taxaLevel=full&rarity=&date=Dec-Jan&loc=&hotspotsOnly=0&latlon=",
-        coords,
-        "&birder=&source=checklists&groupMode=checklists&listby=taxon"
-      )
-      
-      tagList(
-        tags$p("Click ", tags$a(href = recent_url, target = "_blank", "here"),
-               " for recent observations of target species within this area."),
-        tags$p("To view historical records of target species in December and January in this area, click ",
-               tags$a(href = dec_jan_url, target = "_blank", "here."))
-      )
-    } else {
-      HTML("<p>No recent observations available.</p>")
+    if (nrow(selected_polygon) == 0) {
+      return(HTML("<p>No recent observations available.</p>"))
     }
+    
+    ## 1) Build latlon parameter from coords_formatted ----
+    # coords_formatted is plain: "lat,lon lat,lon lat,lon"
+    latlon_raw <- as.character(selected_polygon$coords_formatted[1])
+    
+    # Encode: "," -> "%2C", " " -> "%20"
+    latlon_param <- latlon_raw
+    latlon_param <- gsub(",", "%2C", latlon_param, fixed = TRUE)
+    latlon_param <- gsub(" ", "%20", latlon_param, fixed = TRUE)
+    
+    ## 2) Get centroid for map center (lat/lon) ----
+    poly <- selected_polygon
+    if (!is.na(sf::st_crs(poly)$epsg) && sf::st_crs(poly)$epsg != 4326) {
+      poly <- sf::st_transform(poly, 4326)
+    }
+    centroid <- sf::st_centroid(poly$geometry)
+    cc <- sf::st_coordinates(centroid)
+    lon <- cc[1]
+    lat <- cc[2]
+    zoom <- 9.5
+    
+    ## 3) Species query ----
+    species_query <- species_groups[["dec_jan_special"]]
+    
+    ## 4) Base BirdView v5 URL ----
+    base_url <- paste0(
+      "https://s3.us-west-1.amazonaws.com/membot.com/BirdView.html?v=5",
+      "&county=Santa%20Barbara%20Central%20Coast%20California%20United%20States%20(US)%20North%20America"
+    )
+    
+    ## 5) Build the two URLs ----
+    recent_url <- paste0(
+      base_url,
+      "&latlon=", latlon_param,
+      "&withinArea=0",
+      "&source=",
+      "&", species_query,
+      "&photosOnly=0",
+      "&otherTaxa=0",
+      "&latin=0",
+      "&loc=",
+      "&hotspotsOnly=0",
+      "&nearby=0",
+      "&date=2025-Dec%20-%202026-Jan",
+      "&birder=",
+      "&groupMode=checklists",
+      "&listby=taxon",
+      "&lat=", lat,
+      "&lon=", lon,
+      "&zoom=", zoom
+    )
+    
+    dec_jan_url <- paste0(
+      base_url,
+      "&latlon=", latlon_param,
+      "&withinArea=0",
+      "&source=",
+      "&", species_query,
+      "&photosOnly=0",
+      "&otherTaxa=0",
+      "&latin=0",
+      "&loc=",
+      "&hotspotsOnly=0",
+      "&nearby=0",
+      "&date=Dec-Jan",
+      "&birder=",
+      "&groupMode=checklists",
+      "&listby=taxon",
+      "&lat=", lat,
+      "&lon=", lon,
+      "&zoom=", zoom
+    )
+    
+    tagList(
+      tags$p(
+        "Click ",
+        tags$a(href = recent_url, target = "_blank", "here"),
+        " for recent observations of target species within this area."
+      ),
+      tags$p(
+        "To view historical records of target species in December and January in this area, click ",
+        tags$a(href = dec_jan_url, target = "_blank", "here.")
+      )
+    )
   })
   
   output$shareable_link <- renderUI({
@@ -191,8 +250,12 @@ server <- function(input, output, session) {
         "https://linusblomqvist.shinyapps.io/sb_cbc_area_map/?area=",
         URLencode(input$polygon_select)
       )
-      tags$p(tags$a(href = shareable_url, target = "_blank", rel = "noopener noreferrer",
-                    "Shareable link to this area"))
+      tags$p(tags$a(
+        href = shareable_url,
+        target = "_blank",
+        rel = "noopener noreferrer",
+        "Shareable link to this area"
+      ))
     } else {
       HTML("<p>Select an area to generate a shareable link.</p>")
     }

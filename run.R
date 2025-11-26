@@ -9,5 +9,12 @@ shinyApp(ui, server)
 
 # Publish app
 library(rsconnect)
-deployApp()
-
+rsconnect::deployApp(
+  appFiles = c(
+    "app.R",
+    "output/sb_cbc_areas.rds",
+    "species_groups.R",
+    "google-analytics.Rhtml",
+    "species_encoded_dec_jan.txt"
+  )
+)
