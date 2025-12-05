@@ -101,4 +101,4 @@ hyperlink_data <- sb_cbc_areas_with_hotspots %>%
 sb_cbc_areas <- sb_cbc_areas %>%
   left_join(st_drop_geometry(hyperlink_data), by = "Name")
 
-# saveRDS(sb_cbc_areas, "output/sb_cbc_areas.rds")
+saveRDS(sb_cbc_areas, "output/sb_cbc_areas.rds")
