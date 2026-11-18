@@ -3,6 +3,9 @@ library(leaflet)
 library(sf)
 library(tidyverse)
 
+# CBC season: the year the count period starts (Dec base_year - Jan base_year + 1)
+base_year <- 2026
+
 # Load spatial data
 sf_data <- readRDS("output/sb_cbc_areas.rds")
 
@@ -44,9 +47,7 @@ ui <- fluidPage(
   tags$footer(
     style = "position: relative; margin-top: 20px; width: 100%; background-color: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; color: #6c757d;",
     "For more information about Santa Barbara County Christmas Bird Count circles, click ",
-    tags$a(href = "https://santabarbaraaudubon.org/santa-barbara-christmas-bird-count/", target = "_blank", "here."),
-    " For more information about eBird hotspots, see ",
-    tags$a(href = "https://birdinghotspots.org/region/US-CA-083", target = "_blank", "birdinghotspots.org.")
+    tags$a(href = "https://santabarbaraaudubon.org/santa-barbara-christmas-bird-count/", target = "_blank", "here.")
   )
 )
 
@@ -200,7 +201,7 @@ server <- function(input, output, session) {
       "&loc=",
       "&hotspotsOnly=0",
       "&nearby=0",
-      "&date=2025-Dec%20-%202026-Jan",
+      "&date=", base_year, "-Dec%20-%20", base_year + 1, "-Jan",
       "&birder=",
       "&groupMode=checklists",
       "&listby=taxon",
