@@ -89,9 +89,9 @@ hyperlink_data <- sb_cbc_areas_with_hotspots %>%
   group_by(Name) %>%  # Group by polygon geometry
   summarize(
     hyperlinks = paste0(
-      "<a href='https://birdinghotspots.org/hotspot/", 
-      code, 
-      "'>", 
+      "<a href='https://ebird.org/hotspot/",
+      code,
+      "/about'>",
       hotspot_name, 
       "</a>"
     ) %>%
