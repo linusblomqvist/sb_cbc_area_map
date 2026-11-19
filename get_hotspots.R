@@ -1,7 +1,9 @@
 library(tidyverse)
 library(auk)
+library(sf)
 
-ebd <- read_ebd("data/ebd_US-CA-083_relOct-2025/ebd_US-CA-083_relOct-2025.txt")
+# Download full dataset for Santa Barbara, all species, all years
+ebd <- read_ebd("data/ebd_US-CA-083_relOct-2026/ebd_US-CA-083_relOct-2026.txt")
 
 hotspots <- ebd %>%
   filter(locality_type == "H") %>%
